@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require("mysql");
+const mysql2 = require("mysql2");
 const dotenv = require("dotenv");
 
 process.on("uncaughtException", (err) => {
@@ -11,10 +11,11 @@ dotenv.config({ path: "./config.env" });
 
 const app = require("./app");
 
-const db = mysql.createConnection({
+const db = mysql2.createConnection({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "xris07026305657",
+  database: "drvip",
 });
 
 // Connect to MySQL
