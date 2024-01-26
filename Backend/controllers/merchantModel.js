@@ -1,44 +1,33 @@
-// const crypto = require("crypto");
-// const mongoose = require("mongoose");
-// const validator = require("validator");
-// const bcrypt = require("bcryptjs");
+module.exports = (sequelize, DataTypes) => {
+  const Merchants = sequelize.define("Merchants", {
+    firstName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    businessType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    confirmPassword: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
 
-// const userSchema = new mongoose.Schema({
-//   photo: String,
-//   firstName: {
-//     type: String,
-//     required: [true, "A user needs a first name"],
-//   },
-//   lastName: {
-//     type: String,
-//     required: [true, "A user needs a last name"],
-//   },
-//   userEmail: {
-//     type: String,
-//     required: [true, "A user must have an email"],
-//     unique: true,
-//     validate: [validator.isEmail, "Please enter an email"],
-//   },
-//   password: {
-//     type: String,
-//     required: [true, "Enter a password"],
-//     minlength: 8,
-//     select: false,
-//   },
-//   passwordConfirm: {
-//     type: String,
-//     required: [true, "Confirm your password"],
-//     validate: {
-//       validator: function (el) {
-//         return el === this.password;
-//       },
-//       message: "Passwords are not the same",
-//     },
-//   },
-//   passwordChangedAt: Date,
-//   passwordResetToken: String,
-//   passwordResetExpires: Date,
-// });
+  return Merchants;
+};
 
 // userSchema.pre("save", async function (next) {
 //   if (!this.isModified("password")) return next();
