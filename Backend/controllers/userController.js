@@ -14,3 +14,9 @@ exports.getAllUsers = async (req, res) => {
     },
   });
 };
+
+exports.createUsers = async (req, res) => {
+  const user = req.body;
+  await Users.create(user);
+  res.json;
+};

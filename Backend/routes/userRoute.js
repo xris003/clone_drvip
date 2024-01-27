@@ -5,8 +5,10 @@ const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-router.route("/").get(userController.getAllUsers);
-//   .post(merchantController.createMerchants);
+router
+  .route("/")
+  .get(userController.getAllUsers)
+  .post(userController.createUsers);
 
 // router.route("/:id").patch(merchantController.updateMerchants);
 
