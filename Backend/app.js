@@ -1,7 +1,9 @@
-// const express = require("express");
-// // const merchantRouter = require("./routes/merchantRoute");
+const express = require("express");
+const userRouter = require("./routes/userRoute");
 
-// const app = express();
+const app = express();
+
+app.use(express.json());
 
 // app.get("/createddb", (req, res) => {
 //   let sql = "CREATE DATABASE drvip";
@@ -13,6 +15,6 @@
 //   });
 // });
 
-// // app.use("/api/v1/merchants", merchantRouter);
+app.use("/api/v1/users", userRouter);
 
-// module.exports = app;
+module.exports = app;

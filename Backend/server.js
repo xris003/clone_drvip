@@ -1,14 +1,13 @@
-const express = require("express");
+// const express = require("express");
 // const mysql2 = require("mysql2");
-// const dotenv = require("dotenv");
 
 // process.on("uncaughtException", (err) => {
 //   console.log("UNCAUGHT EXCEPTION! 🚨 Shutting Down....");
 //   console.log(err.name, err.message);
 // });
 
-// dotenv.config({ path: "./config.env" });
-const app = express();
+const app = require("./app");
+// const app = express();
 
 const db = require("./models");
 
