@@ -1,7 +1,7 @@
-const Users = require("../models/userModel");
+const User = require("../models");
 
 exports.getAllUsers = async (req, res) => {
-  const user = await Users.findAll();
+  const user = await User.findAll();
 
   if (!user) {
     return next(new AppError("No document with that number", 404));
@@ -17,6 +17,11 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUsers = async (req, res) => {
   const user = req.body;
-  await Users.create(user);
-  res.json;
+  await User.create(user);
+  res.json({
+    status: "success",
+    data: {
+      data: user,
+    },
+  });
 };
