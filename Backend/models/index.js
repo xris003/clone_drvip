@@ -9,6 +9,6 @@ const sequelize = new Sequelize(config.DATABASE, config.USER, config.PASSWORD, {
 const db = {};
 db.sequelize = sequelize;
 db.models = {};
-db.models.User = require("./userModel")(sequelize, Sequelize.DataTypes);
+db.models.User = require("./user")(sequelize, Sequelize.DataTypes);
 
 module.exports = db;
