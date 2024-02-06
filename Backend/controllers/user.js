@@ -18,7 +18,7 @@ exports.getAllUsers = async (req, res) => {
   });
 };
 
-exports.getUser = catchAsync(async (req, res, next) => {
+exports.getUser = async (req, res, next) => {
   const user = await User.findOne({ where: { id: req.params.id } });
 
   if (!user) {
@@ -31,7 +31,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
       data: user,
     },
   });
-});
+};
 
 exports.createUsers = async (req, res) => {
   const user = req.body;
