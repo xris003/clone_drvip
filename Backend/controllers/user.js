@@ -1,4 +1,3 @@
-// const { User } = require("../models");
 const {
   models: { User },
 } = require("../models");
