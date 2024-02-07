@@ -1,10 +1,9 @@
-// const { User } = require("../models");
 const {
-  models: { User },
+  models: { Merchant },
 } = require("../models");
 
 exports.getAllUsers = async (req, res) => {
-  const user = await User.findAll();
+  const user = await Merchant.findAll();
 
   if (!user) {
     return next(new AppError("No document with that number", 404));
@@ -19,7 +18,7 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.getUser = async (req, res, next) => {
-  const user = await User.findOne({ where: { id: req.params.id } });
+  const user = await Merchant.findOne({ where: { id: req.params.id } });
 
   if (!user) {
     return next(new AppError("No document with that number", 404));
@@ -35,7 +34,7 @@ exports.getUser = async (req, res, next) => {
 
 exports.createUsers = async (req, res) => {
   const user = req.body;
-  await User.create(user);
+  await Merchant.create(user);
   res.json({
     status: "success",
     data: {
