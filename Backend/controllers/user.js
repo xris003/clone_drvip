@@ -31,14 +31,3 @@ exports.getUser = async (req, res, next) => {
     },
   });
 };
-
-exports.createUsers = async (req, res) => {
-  const user = req.body;
-  await User.create(user);
-  res.json({
-    status: "success",
-    data: {
-      data: user,
-    },
-  });
-};
