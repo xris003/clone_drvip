@@ -40,3 +40,26 @@ exports.signup = async (req, res) => {
 
   createSendToken(user, 201, res);
 };
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  // 1) If email and password exists
+  if (!email || !password) {
+    next(new AppError("Please provide email and password", 400));
+  }
+
+  // 2) if Healthcare and password is correct
+  const customer = await User.findOne({ email }).select("+password");
+  //   const correct = user.correctPassword(password, Healthcare.password);
+
+  if (
+    !customer ||
+    !(await customer.correctPassword(password, customer.password))
+  ) {
+    return next(new AppError("Incorrect email or password"));
+  }
+
+  // 3) if ok send token to client
+  createSendToken(customer, 200, res);
+});
