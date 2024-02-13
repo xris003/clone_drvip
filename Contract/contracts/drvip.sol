@@ -85,6 +85,20 @@ contract Badge is ERC1155 {
         return balanceOf(merchant, badgeId); 
     }
 
+    function transferTokensToSmartContract(uint256[] calldata tokenIds, uint256[] calldata amounts, string calldata name) public {
+        address merchant = nameofBadge[name].merchant;
+        require(msg.sender == merchant);
+
+        safeBatchTransferFrom(msg.sender, address(this), tokenIds, amounts, "");
+    }
+
+    function Approve(string calldata name) public {
+        bool approved = true; 
+        setApprovalForAll(address(this), approved );
+        nameofBadge[name].merchant = payable(address(this));
+    }
+    
+
     function transferBadge(address to, uint quantity, string calldata name) public {
         address payable merchant = nameofBadge[name].merchant;
         uint tokenId = nameofBadge[name].badgeId;
