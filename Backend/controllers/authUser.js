@@ -41,7 +41,7 @@ exports.signup = async (req, res) => {
   createSendToken(user, 201, res);
 };
 
-exports.login = catchAsync(async (req, res, next) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   // 1) If email and password exists
@@ -62,4 +62,4 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 3) if ok send token to client
   createSendToken(customer, 200, res);
-});
+};
