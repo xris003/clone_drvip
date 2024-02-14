@@ -2,6 +2,7 @@ const {
   models: { User },
 } = require("../models");
 const jwt = require("jsonwebtoken");
+const AppError = require("../utils/appError");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
