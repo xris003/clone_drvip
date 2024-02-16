@@ -10,7 +10,7 @@ contract Badge is ERC1155 {
     using Counters for Counters.Counter;
     Counters.Counter private _badgeId;
 
-    // address public merchant;
+    address payable contractacct = payable (address(this));
 
     // modifier onlyOwner() {
     //     require(
@@ -93,23 +93,34 @@ contract Badge is ERC1155 {
         return balanceOf(merchant, badgeId); 
     }
 
+    function Approve(string calldata name) public {
+        
+        setApprovalForAll(contractacct, true );
+        
+        nameofBadge[name].merchant = payable(contractacct);
+    }
+
+    function checkApprovalForAll( string calldata name) internal view returns (bool) {
+    address payable merchant = nameofBadge[name].merchant;
+    // Use isApprovedForAll to check approval status
+    return isApprovedForAll(merchant, contractacct);
+    }
+
     function transferTokensToSmartContract( uint256 quantity, string calldata name) public payable {
         uint price = nameofBadge[name].price;
         uint tokenId = nameofBadge[name].badgeId;
         require(msg.value == price);
 
+         // Check if approval is already set
+    if (checkApprovalForAll(name)) {
+        // If not approved, set approval
         Approve(name);
-
-        safeTransferFrom(address(this), msg.sender, tokenId, quantity, "");
     }
 
-    function Approve(string calldata name) public {
-        bool approved = true; 
-        setApprovalForAll(address(this), approved );
-        nameofBadge[name].merchant = payable(address(this));
-    }
+        safeTransferFrom(contractacct, msg.sender, tokenId, quantity, "");
 
-    
-    
-    
+        (payable(contractacct)).transfer(msg.value);
+
+          // (contractacct).transfer(price);
+    }
 }
