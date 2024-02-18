@@ -10,7 +10,7 @@ contract Badge is ERC1155 {
     using Counters for Counters.Counter;
     Counters.Counter private _badgeId;
 
-    // address public merchant;
+    address payable contractacct = payable (address(this));
 
     // modifier onlyOwner() {
     //     require(
@@ -79,26 +79,6 @@ contract Badge is ERC1155 {
         
     }
 
-     function badgeBal(uint256 badgeId, string calldata name) public view  returns (uint256) {
-        address merchant = nameofBadge[name].merchant;
-        require(msg.sender == merchant);
-        return balanceOf(merchant, badgeId); 
-    }
-
-    function transferTokensToSmartContract(uint256[] calldata tokenIds, uint256[] calldata amounts, string calldata name) public {
-        address merchant = nameofBadge[name].merchant;
-        require(msg.sender == merchant);
-
-        safeBatchTransferFrom(msg.sender, address(this), tokenIds, amounts, "");
-    }
-
-    function Approve(string calldata name) public {
-        bool approved = true; 
-        setApprovalForAll(address(this), approved );
-        nameofBadge[name].merchant = payable(address(this));
-    }
-    
-
     function transferBadge(address to, uint quantity, string calldata name) public {
         address payable merchant = nameofBadge[name].merchant;
         uint tokenId = nameofBadge[name].badgeId;
@@ -106,5 +86,41 @@ contract Badge is ERC1155 {
 
         safeTransferFrom(merchant, to, tokenId, quantity, "");
     }
-    
+
+     function badgeBal(uint256 badgeId, string calldata name) public view  returns (uint256) {
+        address merchant = nameofBadge[name].merchant;
+        require(msg.sender == merchant);
+        return balanceOf(merchant, badgeId); 
+    }
+
+    function Approve(string calldata name) public {
+        
+        setApprovalForAll(contractacct, true );
+        
+        nameofBadge[name].merchant = payable(contractacct);
+    }
+
+    function checkApprovalForAll( string calldata name) internal view returns (bool) {
+    address payable merchant = nameofBadge[name].merchant;
+    // Use isApprovedForAll to check approval status
+    return isApprovedForAll(merchant, contractacct);
+    }
+
+    function transferTokensToSmartContract( uint256 quantity, string calldata name) public payable {
+        uint price = nameofBadge[name].price;
+        uint tokenId = nameofBadge[name].badgeId;
+        require(msg.value == price);
+
+         // Check if approval is already set
+    if (checkApprovalForAll(name)) {
+        // If not approved, set approval
+        Approve(name);
+    }
+
+        safeTransferFrom(contractacct, msg.sender, tokenId, quantity, "");
+
+        (payable(contractacct)).transfer(msg.value);
+
+          // (contractacct).transfer(price);
+    }
 }

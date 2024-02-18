@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "user",
@@ -20,13 +22,25 @@ module.exports = (sequelize, DataTypes) => {
       },
       confirmPassword: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
     },
     {
       freezeTableName: true,
     }
   );
+
+  // Use a hook to hash the password before saving the user to the database
+  User.beforeCreate(async (user) => {
+    if (user.changed("password")) {
+      user.password = await bcrypt.hash(user.password, 12);
+      user.confirmPassword = undefined;
+    }
+  });
+
+  // Instance method to compare passwords
+  User.prototype.correctPassword = async function (candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+  };
 
   return User;
 };
