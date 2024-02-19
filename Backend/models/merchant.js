@@ -43,7 +43,6 @@ module.exports = (sequelize, DataTypes) => {
       confirmPassword: {
         type: DataTypes.VIRTUAL,
         allowNull: false,
-        // defaultValue: "*********",
         validate: {
           isSamePassword(value) {
             if (value !== this.password) {

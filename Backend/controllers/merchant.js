@@ -32,13 +32,30 @@ exports.getUser = async (req, res, next) => {
   });
 };
 
-// exports.createUsers = async (req, res) => {
-//   const user = req.body;
-//   await Merchant.create(user);
-//   res.json({
-//     status: "success",
-//     data: {
-//       data: user,
-//     },
-//   });
-// };
+exports.updateMerchant = catchAsync(async (req, res, next) => {
+  const merchant = await Merchant.update({
+    where: { id: req.params.id },
+    attributes: [
+      "businessName",
+      "businessType",
+      "businessEmail",
+      "contact",
+      "walletAddress",
+    ],
+  });
+  // const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+  //   new: true,
+  //   runValidators: true,
+  // });
+
+  if (!merchant) {
+    return next(new AppError("No document with that number", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      data: merchant,
+    },
+  });
+});
