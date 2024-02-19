@@ -32,13 +32,13 @@ exports.getUser = async (req, res, next) => {
   });
 };
 
-exports.createUsers = async (req, res) => {
-  const user = req.body;
-  await Merchant.create(user);
-  res.json({
-    status: "success",
-    data: {
-      data: user,
-    },
-  });
-};
+// exports.createUsers = async (req, res) => {
+//   const user = req.body;
+//   await Merchant.create(user);
+//   res.json({
+//     status: "success",
+//     data: {
+//       data: user,
+//     },
+//   });
+// };
