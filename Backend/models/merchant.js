@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const Merchants = sequelize.define("merchant", {
-    name: {
+    businessName: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email: {
+    businessEmail: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -13,6 +13,18 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     businessAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    state: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    contact: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -28,63 +40,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    walletAddress: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 
   return Merchants;
+
+  // Use a hook to hash the password before saving the user to the database
+  User.beforeCreate(async (user) => {
+    if (user.changed("password")) {
+      user.password = await bcrypt.hash(user.password, 12);
+      user.confirmPassword = undefined;
+    }
+  });
+
+  // Instance method to compare passwords
+  User.prototype.correctPassword = async function (candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+  };
+
+  return User;
 };
-
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-
-//   this.password = await bcrypt.hash(this.password, 12);
-
-//   this.passwordConfirm = undefined;
-// });
-
-// userSchema.pre("save", function (next) {
-//   if (!this.isModified("password") || this.isNew) return next();
-
-//   this.passwordChangedAt = Date.now() - 1000;
-//   next();
-// });
-
-// userSchema.methods.correctPassword = async function (
-//   candidatePassword,
-//   UserPassword
-// ) {
-//   return await bcrypt.compare(candidatePassword, UserPassword);
-// };
-
-// userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
-//   if (this.passwordChangedAt) {
-//     const changedTimestamp = parseInt(
-//       this.passwordChangedAt.getTime() / 1000,
-//       10
-//     );
-
-//     console.log(this.passwordChangedAt, JWTTimestamp);
-//     return JWTTimestamp < changedTimestamp;
-//   }
-
-//   return false;
-// };
-
-// // To generate token to reset password
-// userSchema.methods.createPasswordResetToken = function () {
-//   const resetToken = crypto.randomBytes(32).toString("hex");
-
-//   this.passwordResetToken = crypto
-//     .createHash("sha256")
-//     .update(resetToken)
-//     .digest("hex");
-
-//   console.log({ resetToken }, this.passwordResetToken);
-
-//   this.passwordResetExpires = Date.now() + 40 * 120 * 1000;
-
-//   return resetToken;
-// };
-
-// const User = mongoose.model("User", userSchema);
-
-// module.exports = User;
