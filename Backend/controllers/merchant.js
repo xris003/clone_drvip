@@ -32,7 +32,7 @@ exports.getUser = async (req, res, next) => {
   });
 };
 
-exports.updateMerchant = catchAsync(async (req, res, next) => {
+exports.updateMerchant = async (req, res, next) => {
   const merchant = await Merchant.update({
     where: { id: req.params.id },
     attributes: [
@@ -58,4 +58,4 @@ exports.updateMerchant = catchAsync(async (req, res, next) => {
       data: merchant,
     },
   });
-});
+};

@@ -8,6 +8,6 @@ router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 router.route("/").get(merchantController.getAllUsers);
 
-// router.route("/:id").patch(merchantController.updateMerchants);
+router.route("/:id").patch(merchantController.updateMerchant);
 
 module.exports = router;
