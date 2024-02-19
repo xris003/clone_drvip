@@ -37,22 +37,24 @@ const createSendToken = (merchant, statusCode, res) => {
 };
 
 exports.signup = async (req, res) => {
-  const user = await User.create(req.body);
+  const merchant = await Merchant.create(req.body);
 
-  createSendToken(user, 201, res);
+  createSendToken(merchant, 201, res);
 };
 
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { businessEmail, password } = req.body;
 
   // 1) If email and password exists
-  if (!email || !password) {
+  if (!businessEmail || !password) {
     next(new AppError("Please provide email and password", 400));
   }
 
-  // 2) if Healthcare and password is correct
-  const customer = await User.findOne({ email }).select("+password");
-  //   const correct = user.correctPassword(password, Healthcare.password);
+  // 2) if User and password is correct
+  const customer = await Merchant.findOne({
+    where: { email },
+    attributes: ["password"],
+  });
 
   if (
     !customer ||

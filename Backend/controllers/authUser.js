@@ -51,7 +51,6 @@ exports.login = async (req, res, next) => {
   }
 
   // 2) if User and password is correct
-  // const customer = await User.findOne({ email }).select("+password");
   const customer = await User.findOne({
     where: { email },
     attributes: ["password"],
