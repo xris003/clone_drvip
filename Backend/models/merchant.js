@@ -46,13 +46,11 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  return Merchants;
-
   // Use a hook to hash the password before saving the user to the database
-  User.beforeCreate(async (user) => {
-    if (user.changed("password")) {
-      user.password = await bcrypt.hash(user.password, 12);
-      user.confirmPassword = undefined;
+  User.beforeCreate(async (merchant) => {
+    if (merchant.changed("password")) {
+      merchant.password = await bcrypt.hash(merchant.password, 12);
+      merchant.confirmPassword = undefined;
     }
   });
 
@@ -61,5 +59,5 @@ module.exports = (sequelize, DataTypes) => {
     return await bcrypt.compare(candidatePassword, this.password);
   };
 
-  return User;
+  return Merchants;
 };
