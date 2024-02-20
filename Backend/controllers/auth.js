@@ -3,6 +3,7 @@ const {
 } = require("../models");
 
 const jwt = require("jsonwebtoken");
+const merchant = require("../models/merchant");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -51,18 +52,18 @@ exports.login = async (req, res, next) => {
   }
 
   // 2) if User and password is correct
-  const customer = await Merchant.findOne({
-    where: { email },
+  const merchant = await Merchant.findOne({
+    where: { businessEmail },
     attributes: ["password"],
   });
 
   if (
-    !customer ||
-    !(await customer.correctPassword(password, customer.password))
+    !merchant ||
+    !(await merchant.correctPassword(password, merchant.password))
   ) {
     return next(new AppError("Incorrect email or password"));
   }
 
   // 3) if ok send token to client
-  createSendToken(customer, 200, res);
+  createSendToken(merchant, 200, res);
 };

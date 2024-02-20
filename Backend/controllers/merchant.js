@@ -32,41 +32,16 @@ exports.getUser = async (req, res, next) => {
   });
 };
 
-// exports.updateMerchant = async (req, res, next) => {
-//   const merchant = await Merchant.update({
-//     where: { id: req.params.id },
-//     attributes: [
-//       "businessName",
-//       "businessType",
-//       "businessEmail",
-//       "contact",
-//       "walletAddress",
-//     ],
-//   });
-//   // const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-//   //   new: true,
-//   //   runValidators: true,
-//   // });
-
-//   if (!merchant) {
-//     return next(new AppError("No document with that number", 404));
-//   }
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       data: merchant,
-//     },
-//   });
-// };
-
 exports.updateMerchant = async (req, res, next) => {
   try {
     const [numRowsAffected, updatedMerchant] = await Merchant.update(
       {
         businessName: req.body.businessName,
         businessType: req.body.businessType,
+        businessAddress: req.body.businessAddress,
         businessEmail: req.body.businessEmail,
+        city: req.body.city,
+        state: req.body.state,
         contact: req.body.contact,
         walletAddress: req.body.walletAddress,
       },
