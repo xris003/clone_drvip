@@ -4,6 +4,7 @@ const {
 
 const jwt = require("jsonwebtoken");
 const merchant = require("../models/merchant");
+const AppError = require("../utils/appError");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -54,7 +55,7 @@ exports.login = async (req, res, next) => {
   // 2) if User and password is correct
   const merchant = await Merchant.findOne({
     where: { businessEmail },
-    attributes: ["password"],
+    // attributes: ["password"],
   });
 
   if (
