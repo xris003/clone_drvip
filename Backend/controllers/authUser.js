@@ -66,3 +66,5 @@ exports.login = async (req, res, next) => {
   // 3) if ok send token to client
   createSendToken(customer, 200, res);
 };
+
+// exports.logout = (req, res) => {
