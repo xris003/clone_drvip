@@ -68,3 +68,5 @@ exports.login = async (req, res, next) => {
 };
 
 // exports.logout = (req, res) => {
+
+exports.protect = async (req, res, next) => {
