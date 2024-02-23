@@ -119,3 +119,34 @@ contract Badge is ERC1155 {
         (payable(merchant)).transfer(msg.value);
     }
 }
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9; 
+
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
+
+contract nftstaker {
+    IERC1155 public parentNFT;
+
+    struct Stake {
+        uint256 tokenId;
+        uint256 amount;
+        uint256 timestamp;
+    }
+
+    // map staker address to the stake details
+    mapping(address => Stake) public stakes;
+
+    // map staker to the total staking plan
+    mapping(address => uint256) public stakingSpan;
+
+    constructor() {
+        parentNFT = IERC115(contractaddress);
+    }
+
+    function stake(uint _tokenId, uint256 _amount) public {
+        stakes[msg.sender] = Stake(_tokenId, _amount, block.timestamp);
+        parentNFT.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "0x00");
+    }
+}
