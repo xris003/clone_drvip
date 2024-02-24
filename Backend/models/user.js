@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       confirmPassword: {
-        type: DataTypes.VITUAL,
+        type: DataTypes.VIRTUAL,
         allowNull: false,
         validate: {
           isSamePassword(value) {
