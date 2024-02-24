@@ -157,3 +157,55 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get healthcare based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const healthcare = await Healthcare.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // 2) If token has not expired, and there is healthcare, set the new password
+  if (!healthcare) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+  healthcare.password = req.body.password;
+  healthcare.passwordConfirm = req.body.passwordConfirm;
+  healthcare.passwordResetToken = undefined;
+  healthcare.passwordResetExpires = undefined;
+  await healthcare.save();
+
+  // 3) Update changedPasswordAt property for the user
+
+  // 4) Log the healthcare in, send JWT
+  createSendToken(healthcare, 200, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get Healthcare from Collection
+  const healthcare = await Healthcare.findById(req.healthcare.id).select(
+    "+password"
+  );
+  // 2) Check if POSTed current password is correct
+  if (
+    !(await healthcare.correctPassword(
+      req.body.passwordCurrent,
+      healthcare.password
+    ))
+  ) {
+    return next(new AppError("Your current password is wrong", 401));
+  }
+
+  // 3) If so update password
+  healthcare.password = req.body.password;
+  healthcare.passwordConfirm = req.body.passwordConfirm;
+  await healthcare.save();
+
+  // 4) Log User in, send JWT
+  createSendToken(healthcare, 200, res);
+});
