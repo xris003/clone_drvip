@@ -68,5 +68,92 @@ exports.login = async (req, res, next) => {
 };
 
 // exports.logout = (req, res) => {
+//   res.cookie("jwt", "loggedout", {
+//     expires: new Date(Date.now() + 10 * 1000),
+//     httpOnly: true,
+//   });
+//   res.status(200).json({ status: "success" });
+// };
 
 exports.protect = async (req, res, next) => {
+  // 1) Get the token and check if it's there
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in! Login to have access", 401)
+    );
+  }
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // console.log(decoded);
+
+  // 3) Check if healthcare stil exists
+  const currentUser = await User.findOne({ where: { id: decoded.id } });
+  if (!currentUser) {
+    return next(new AppError("The healthcare no longer exists", 401));
+  }
+
+  // 4) Check if healthcare changed password after the token was isssued
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError(
+        "Healthcare recently changed password! Please log in again.",
+        401
+      )
+    );
+  }
+
+  // Set currentHealthcare in both req.user and res.locals.user
+  req.user = currentUser;
+
+  // Grants Access to proctected route
+  next();
+};
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on POSTed email
+  const user = await User.findOne({ where: { email: req.body.email } });
+  if (!user) {
+    return next(new AppError("There is no user with the email address", 404));
+  }
+
+  // 2) Generate the random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Send it to the user's email
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/users/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new passsword and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10mins)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError("There was an error sending the email. Try again"),
+      500
+    );
+  }
+});
