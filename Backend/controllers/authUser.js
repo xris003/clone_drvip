@@ -117,7 +117,7 @@ exports.protect = async (req, res, next) => {
   next();
 };
 
-exports.forgotPassword = catchAsync(async (req, res, next) => {
+exports.forgotPassword = async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ where: { email: req.body.email } });
   if (!user) {
@@ -156,56 +156,49 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       500
     );
   }
-});
+};
 
-exports.resetPassword = catchAsync(async (req, res, next) => {
-  // 1) Get healthcare based on the token
+exports.resetPassword = async (req, res, next) => {
+  // 1) Get USER based on the token
   const hashedToken = crypto
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
 
-  const healthcare = await Healthcare.findOne({
+  const user = await User.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
 
-  // 2) If token has not expired, and there is healthcare, set the new password
-  if (!healthcare) {
+  // 2) If token has not expired, and there is a user, set the new password
+  if (!user) {
     return next(new AppError("Token is invalid or has expired", 400));
   }
-  healthcare.password = req.body.password;
-  healthcare.passwordConfirm = req.body.passwordConfirm;
-  healthcare.passwordResetToken = undefined;
-  healthcare.passwordResetExpires = undefined;
-  await healthcare.save();
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
 
   // 3) Update changedPasswordAt property for the user
 
   // 4) Log the healthcare in, send JWT
-  createSendToken(healthcare, 200, res);
-});
+  createSendToken(user, 200, res);
+};
 
-exports.updatePassword = catchAsync(async (req, res, next) => {
+exports.updatePassword = async (req, res, next) => {
   // 1) Get Healthcare from Collection
-  const healthcare = await Healthcare.findById(req.healthcare.id).select(
-    "+password"
-  );
+  const user = await User.findById(req.user.id).select("+password");
   // 2) Check if POSTed current password is correct
-  if (
-    !(await healthcare.correctPassword(
-      req.body.passwordCurrent,
-      healthcare.password
-    ))
-  ) {
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError("Your current password is wrong", 401));
   }
 
   // 3) If so update password
-  healthcare.password = req.body.password;
-  healthcare.passwordConfirm = req.body.passwordConfirm;
-  await healthcare.save();
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
 
   // 4) Log User in, send JWT
-  createSendToken(healthcare, 200, res);
-});
+  createSendToken(user, 200, res);
+};
