@@ -21,7 +21,21 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       confirmPassword: {
+        type: DataTypes.VITUAL,
+        allowNull: false,
+        validate: {
+          isSamePassword(value) {
+            if (value !== this.password) {
+              throw new Error("Passwords do not match");
+            }
+          },
+        },
+      },
+      passwordResetToken: {
         type: DataTypes.STRING,
+      },
+      passwordResetExpiresAt: {
+        type: DataTypes.DATE,
       },
     },
     {
