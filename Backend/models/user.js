@@ -37,7 +37,9 @@ module.exports = (sequelize, DataTypes) => {
       passwordResetExpiresAt: {
         type: DataTypes.DATE,
       },
+      activated: {},
     },
+
     {
       freezeTableName: true,
       createdAt: false,
