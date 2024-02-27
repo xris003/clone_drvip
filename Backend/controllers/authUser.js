@@ -93,6 +93,7 @@ exports.signup = async (req, res) => {
 //   }
 //   user.password = req.body.password;
 //   user.passwordConfirm = req.body.passwordConfirm;
+//   user.activated = true;
 //   user.passwordResetToken = undefined;
 //   user.passwordResetExpires = undefined;
 //   await user.save();

@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       activated: {
         type: DataTypes.BOOLEAN,
-        defaultValue: False,
+        defaultValue: false,
       },
       emailVerifyToken: {
         type: DataTypes.STRING,
