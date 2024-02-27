@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -41,8 +42,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: False,
       },
+      accountVerifyToken: {
+        type: DataTypes.STRING,
+      },
+      accountVerifyExpires: {
+        type: DataTypes.DATE,
+      },
     },
-
     {
       freezeTableName: true,
       createdAt: false,
@@ -63,19 +69,19 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   // To generate token to reset password
-  User.prototype.createPasswordResetToken = function () {
-    const resetToken = crypto.randomBytes(32).toString("hex");
+  User.prototype.createAccountVerifyToken = function () {
+    const verifyToken = crypto.randomBytes(32).toString("hex");
 
-    this.passwordResetToken = crypto
+    this.accountVerifyToken = crypto
       .createHash("sha256")
-      .update(resetToken)
+      .update(verifyToken)
       .digest("hex");
 
-    console.log({ resetToken }, this.passwordResetToken);
+    console.log({ verifyToken }, this.accountVerifyToken);
 
-    this.passwordResetExpires = Date.now() + 40 * 120 * 1000;
+    this.accountVerifyExpires = Date.now() + 40 * 120 * 120 * 1000;
 
-    return resetToken;
+    return verifyToken;
   };
 
   return User;
