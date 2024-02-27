@@ -42,10 +42,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: False,
       },
-      accountVerifyToken: {
+      emailVerifyToken: {
         type: DataTypes.STRING,
       },
-      accountVerifyExpires: {
+      emailVerifyExpires: {
         type: DataTypes.DATE,
       },
     },

@@ -39,8 +39,69 @@ const createSendToken = (user, statusCode, res) => {
 exports.signup = async (req, res) => {
   const user = await User.create(req.body);
 
-  createSendToken(user, 201, res);
+  // 2) Generate the random email verification token
+  const verifyToken = user.createAccountVerifyToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Send it to the user's email
+  const verificationURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/users/verifyEmail/${verifyToken}`;
+
+  const message = `Welcome to YourApp! To verify your email, please submit a PATCH request to: ${verificationURL}.\n If you didn't sign up for an account, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: req.body.email,
+      subject: "Verify Your Email Address",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Verification token sent to email!",
+    });
+  } catch (err) {
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    // Handle the error, e.g., return a 500 status code
+    res.status(500).json({
+      status: "error",
+      message: "Failed to send verification email. Please try again later.",
+    });
+  }
+  //createSendToken(user, 201, res);
 };
+
+// exports.verifyEmail = async (req, res, next) => {
+//   // 1) Get USER based on the token
+//   const hashedToken = crypto
+//     .createHash("sha256")
+//     .update(req.params.token)
+//     .digest("hex");
+
+//   const user = await User.findOne({
+//     emailVerifyToken: hashedToken,
+//     emailVerifyExpires: { $gt: Date.now() },
+//   });
+
+//   // 2) If token has not expired, and there is a user, set the new password
+//   if (!user) {
+//     return next(new AppError("Token is invalid or has expired", 400));
+//   }
+//   user.password = req.body.password;
+//   user.passwordConfirm = req.body.passwordConfirm;
+//   user.passwordResetToken = undefined;
+//   user.passwordResetExpires = undefined;
+//   await user.save();
+
+//   // 3) Update changedPasswordAt property for the user
+
+//   // 4) Log the healthcare in, send JWT
+//   createSendToken(user, 200, res);
+// };
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
