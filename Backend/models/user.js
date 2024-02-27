@@ -77,9 +77,9 @@ module.exports = (sequelize, DataTypes) => {
       .update(verifyToken)
       .digest("hex");
 
-    console.log({ verifyToken }, this.accountVerifyToken);
+    console.log({ verifyToken }, this.emailVerifyToken);
 
-    this.accountVerifyExpires = Date.now() + 40 * 120 * 120 * 1000;
+    this.emailVerifyExpires = Date.now() + 40 * 120 * 120 * 1000;
 
     return verifyToken;
   };
