@@ -72,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
   User.prototype.createAccountVerifyToken = function () {
     const verifyToken = crypto.randomBytes(32).toString("hex");
 
-    this.accountVerifyToken = crypto
+    this.emailVerifyToken = crypto
       .createHash("sha256")
       .update(verifyToken)
       .digest("hex");
