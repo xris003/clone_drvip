@@ -62,5 +62,21 @@ module.exports = (sequelize, DataTypes) => {
     return await bcrypt.compare(candidatePassword, this.password);
   };
 
+  // To generate token to reset password
+  User.prototype.createPasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    this.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    console.log({ resetToken }, this.passwordResetToken);
+
+    this.passwordResetExpires = Date.now() + 40 * 120 * 1000;
+
+    return resetToken;
+  };
+
   return User;
 };
