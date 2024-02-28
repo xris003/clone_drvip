@@ -58,7 +58,7 @@ exports.signup = async (req, res) => {
       subject: "Verify Your Email Address",
       message,
     });
-
+    console.log(req.body.email);
     res.status(200).json({
       status: "success",
       message: "Verification token sent to email!",
