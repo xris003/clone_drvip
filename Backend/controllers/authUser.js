@@ -58,7 +58,7 @@ exports.signup = async (req, res) => {
       subject: "Verify Your Email Address",
       message,
     });
-    console.log(req.body.email);
+    // console.log(req.body.email);
     res.status(200).json({
       status: "success",
       message: "Verification token sent to email!",
@@ -77,34 +77,34 @@ exports.signup = async (req, res) => {
   //createSendToken(user, 201, res);
 };
 
-// exports.verifyEmail = async (req, res, next) => {
-//   // 1) Get USER based on the token
-//   const hashedToken = crypto
-//     .createHash("sha256")
-//     .update(req.params.token)
-//     .digest("hex");
+exports.verifyEmail = async (req, res, next) => {
+  // 1) Get USER based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
 
-//   const user = await User.findOne({
-//     emailVerifyToken: hashedToken,
-//     emailVerifyExpires: { $gt: Date.now() },
-//   });
+  const user = await User.findOne({
+    emailVerifyToken: hashedToken,
+    emailVerifyExpires: { $gt: Date.now() },
+  });
 
-//   // 2) If token has not expired, and there is a user, set the new password
-//   if (!user) {
-//     return next(new AppError("Token is invalid or has expired", 400));
-//   }
-//   user.password = req.body.password;
-//   user.passwordConfirm = req.body.passwordConfirm;
-//   user.activated = true;
-//   user.passwordResetToken = undefined;
-//   user.passwordResetExpires = undefined;
-//   await user.save();
+  // 2) If token has not expired, and there is a user, set the new password
+  if (!user) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+  // user.password = req.body.password;
+  // user.passwordConfirm = req.body.passwordConfirm;
+  user.activated = true;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
 
-//   // 3) Update changedPasswordAt property for the user
+  // 3) Update changedPasswordAt property for the user
 
-//   // 4) Log the healthcare in, send JWT
-//   createSendToken(user, 200, res);
-// };
+  // 4) Log the healthcare in, send JWT
+  createSendToken(user, 200, res);
+};
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
