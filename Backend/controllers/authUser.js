@@ -157,15 +157,15 @@ exports.protect = async (req, res, next) => {
   }
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  // console.log(decoded);
+  console.log(decoded);
 
-  // 3) Check if healthcare stil exists
+  // 3) Check if User stil exists
   const currentUser = await User.findOne({ where: { id: decoded.id } });
   if (!currentUser) {
     return next(new AppError("The healthcare no longer exists", 401));
   }
 
-  // 4) Check if healthcare changed password after the token was isssued
+  // 4) Check if User changed password after the token was isssued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError(
@@ -175,7 +175,7 @@ exports.protect = async (req, res, next) => {
     );
   }
 
-  // Set currentHealthcare in both req.user and res.locals.user
+  // Set currentUser in both req.user and res.locals.user
   req.user = currentUser;
 
   // Grants Access to proctected route
@@ -253,7 +253,10 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updatePassword = async (req, res, next) => {
   // 1) Get USER from Collection
-  const user = await User.findOne({ where: { email }, attributes: [password] });
+  const user = await User.findOne({
+    where: { id: req.user.id },
+    attributes: [password],
+  });
 
   // 2) Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {

@@ -10,7 +10,7 @@ router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/verifyEmail/:token", authController.verifyEmail);
 router.patch(
   "/updatePassword",
-  authController.protect,
+  // authController.protect,
   authController.updatePassword
 );
 
