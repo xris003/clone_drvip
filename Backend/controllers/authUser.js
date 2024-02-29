@@ -1,6 +1,7 @@
 const {
   models: { User },
 } = require("../models");
+const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const AppError = require("../utils/appError");
