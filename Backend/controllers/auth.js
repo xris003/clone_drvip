@@ -1,7 +1,7 @@
 const {
   models: { Merchant },
 } = require("../models");
-
+const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const merchant = require("../models/merchant");
 const AppError = require("../utils/appError");
