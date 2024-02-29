@@ -251,8 +251,9 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.updatePassword = async (req, res, next) => {
-  // 1) Get Healthcare from Collection
-  const user = await User.findById(req.user.id).select("+password");
+  // 1) Get USER from Collection
+  const user = await User.findOne({ where: { email }, attributes: [password] });
+
   // 2) Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError("Your current password is wrong", 401));
