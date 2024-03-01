@@ -97,9 +97,13 @@ exports.protect = async (req, res, next) => {
   // console.log(decoded);
 
   // 3) Check if Merchant stil exists
-  const currentMerchant = await Merchant.findOne({ where: { id: decoded.id } });
-  if (!currentMerchant) {
-    return next(new AppError("The healthcare no longer exists", 401));
+  // const currentMerchant = await Merchant.findOne({ where: { id: decoded.id } });
+  // if (!currentMerchant) {
+  //   return next(new AppError("The healthcare no longer exists", 401));
+  // }
+  const currentmerchant = await Merchant.findByPk(decoded.id);
+  if (!currentmerchant) {
+    return next(new AppError("The merchant no longer exists", 401));
   }
 
   // 4) Check if healthcare changed password after the token was isssued
@@ -112,7 +116,7 @@ exports.protect = async (req, res, next) => {
     );
   }
 
-  // Set currentHealthcare in both req.user and res.locals.user
+  // Set currentMerchant in both req.merchant and res.locals.merchant
   req.merchant = currentMerchant;
 
   // Grants Access to proctected route
