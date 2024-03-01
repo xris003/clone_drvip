@@ -116,20 +116,17 @@ exports.login = async (req, res, next) => {
   }
 
   // 2) if User and password is correct
-  const customer = await User.findOne({
+  const user = await User.findOne({
     where: { email },
     // attributes: ["password"],
   });
 
-  if (
-    !customer ||
-    !(await customer.correctPassword(password, customer.password))
-  ) {
+  if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password"));
   }
 
   // 3) if ok send token to client
-  createSendToken(customer, 200, res);
+  createSendToken(user, 200, res);
 };
 
 // exports.logout = (req, res) => {
@@ -165,6 +162,7 @@ exports.protect = async (req, res, next) => {
 
     // 3) Check if User still exists
     const currentUser = await User.findByPk(decoded.id);
+    console.log("Email received:", req.user.email);
     if (!currentUser) {
       return next(new AppError("The user no longer exists", 401));
     }
@@ -263,7 +261,7 @@ exports.updatePassword = async (req, res, next) => {
   try {
     // 1) Get User from Collection
     const user = await User.findByPk(req.user.id, {
-      attributes: { include: ["password"] },
+      // attributes: { include: ["password"] },
     });
 
     // 2) Check if POSTed current password is correct
