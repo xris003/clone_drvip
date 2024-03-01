@@ -23,7 +23,7 @@ const createSendToken = (user, statusCode, res) => {
   };
 
   // For Production Environment Only
-  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
 
@@ -155,31 +155,37 @@ exports.protect = async (req, res, next) => {
       new AppError("You are not logged in! Login to have access", 401)
     );
   }
+
   // 2) Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
+  try {
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    console.log(decoded);
 
-  // 3) Check if User stil exists
-  const currentUser = await User.findOne({ where: { id: decoded.id } });
-  if (!currentUser) {
-    return next(new AppError("The healthcare no longer exists", 401));
+    // 3) Check if User still exists
+    const currentUser = await User.findByPk(decoded.id);
+    if (!currentUser) {
+      return next(new AppError("The user no longer exists", 401));
+    }
+
+    // 4) Check if User changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError(
+          "User recently changed password! Please log in again.",
+          401
+        )
+      );
+    }
+
+    // Set currentUser in both req.user and res.locals.user
+    req.user = currentUser;
+    res.locals.user = currentUser;
+
+    // Grants Access to protected route
+    next();
+  } catch (err) {
+    return next(new AppError("Invalid token. Please log in again.", 401));
   }
-
-  // 4) Check if User changed password after the token was isssued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError(
-        "Healthcare recently changed password! Please log in again.",
-        401
-      )
-    );
-  }
-
-  // Set currentUser in both req.user and res.locals.user
-  req.user = currentUser;
-
-  // Grants Access to proctected route
-  next();
 };
 
 exports.forgotPassword = async (req, res, next) => {
@@ -252,22 +258,28 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.updatePassword = async (req, res, next) => {
-  // 1) Get USER from Collection
-  const user = await User.findOne({
-    where: { id: req.user.id },
-    attributes: [password],
-  });
+  try {
+    // 1) Get User from Collection
+    const user = await User.findByPk(req.user.id, {
+      attributes: { include: ["password"] },
+    });
 
-  // 2) Check if POSTed current password is correct
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
-    return next(new AppError("Your current password is wrong", 401));
+    // 2) Check if POSTed current password is correct
+    if (
+      !(await user.correctPassword(req.body.passwordCurrent, user.password))
+    ) {
+      return next(new AppError("Your current password is wrong", 401));
+    }
+
+    // 3) If so update password
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+
+    // 4) Log User in, send JWT
+    createSendToken(user, 200, res);
+  } catch (err) {
+    console.error(err);
+    return next(new AppError("Error updating password", 500));
   }
-
-  // 3) If so update password
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  await user.save();
-
-  // 4) Log User in, send JWT
-  createSendToken(user, 200, res);
 };
