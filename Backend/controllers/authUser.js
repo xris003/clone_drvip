@@ -261,7 +261,7 @@ exports.updatePassword = async (req, res, next) => {
   try {
     // 1) Get User from Collection
     const user = await User.findByPk(req.user.id, {
-      // attributes: { include: ["password"] },
+      attributes: { include: ["password"] },
     });
 
     // 2) Check if POSTed current password is correct
