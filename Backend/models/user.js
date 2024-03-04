@@ -50,11 +50,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       passwordChangedAt: {
         type: DataTypes.DATE,
+        defaultValue: null,
       },
     },
     {
       freezeTableName: true,
       createdAt: false,
+      updatedAt: false,
     }
   );
 

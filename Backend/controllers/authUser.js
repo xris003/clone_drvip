@@ -8,13 +8,15 @@ const AppError = require("../utils/appError");
 const sendEmail = require("../utils/email");
 
 const signToken = (id) => {
+  console.log("In sign token", id);
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  // console.log("Inside createsendtoken", user);
+  const token = signToken(user.id);
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -124,6 +126,7 @@ exports.login = async (req, res, next) => {
   }
 
   // 3) if ok send token to client
+  // console.log(user);
   createSendToken(user, 200, res);
 };
 
@@ -156,11 +159,10 @@ exports.protect = async (req, res, next) => {
   // 2) Verification token
   try {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    console.log(decoded);
 
     // 3) Check if User still exists
     const currentUser = await User.findByPk(decoded.id);
-    console.log("Email received:", req.user.email);
+    // console.log("Email received:", req.user);
     if (!currentUser) {
       return next(new AppError("The user no longer exists", 401));
     }
@@ -182,6 +184,7 @@ exports.protect = async (req, res, next) => {
     // Grants Access to protected route
     next();
   } catch (err) {
+    console.log(err);
     return next(new AppError("Invalid token. Please log in again.", 401));
   }
 };
