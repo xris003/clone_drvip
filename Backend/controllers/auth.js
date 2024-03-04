@@ -22,7 +22,7 @@ const createSendToken = (merchant, statusCode, res) => {
   };
 
   // For Production Environment Only
-  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
 
@@ -77,6 +77,7 @@ exports.login = async (req, res, next) => {
 //   res.status(200).json({ status: "success" });
 // };
 
+// THIS FUNCTION IS STILL UNDER REVIEW
 exports.protect = async (req, res, next) => {
   // 1) Get the token and check if it's there
   let token;
@@ -99,7 +100,7 @@ exports.protect = async (req, res, next) => {
   // 3) Check if Merchant stil exists
   // const currentMerchant = await Merchant.findOne({ where: { id: decoded.id } });
   // if (!currentMerchant) {
-  //   return next(new AppError("The healthcare no longer exists", 401));
+  //   return next(new AppError("The merchant no longer exists", 401));
   // }
   const currentmerchant = await Merchant.findByPk(decoded.id);
   if (!currentmerchant) {
@@ -107,7 +108,7 @@ exports.protect = async (req, res, next) => {
   }
 
   // 4) Check if healthcare changed password after the token was isssued
-  if (currentMerchant.changedPasswordAfter(decoded.iat)) {
+  if (currentmerchant.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError(
         "Healthcare recently changed password! Please log in again.",
@@ -117,7 +118,7 @@ exports.protect = async (req, res, next) => {
   }
 
   // Set currentMerchant in both req.merchant and res.locals.merchant
-  req.merchant = currentMerchant;
+  req.merchant = currentmerchant;
 
   // Grants Access to proctected route
   next();
