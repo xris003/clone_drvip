@@ -107,7 +107,7 @@ exports.protect = async (req, res, next) => {
     return next(new AppError("The merchant no longer exists", 401));
   }
 
-  // 4) Check if healthcare changed password after the token was isssued
+  // 4) Check if Merchant changed password after the token was isssued
   if (currentmerchant.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError(

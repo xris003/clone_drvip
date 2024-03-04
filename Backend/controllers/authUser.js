@@ -94,16 +94,14 @@ exports.verifyEmail = async (req, res, next) => {
   if (!user) {
     return next(new AppError("Token is invalid or has expired", 400));
   }
-  // user.password = req.body.password;
-  // user.passwordConfirm = req.body.passwordConfirm;
+
+  // Update the ACTIVATED, EMAILVERIFYTOKEN and EMAILVERIFYEXPIRES
   user.activated = true;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
+  user.emailVerifyToken = undefined;
+  user.emailVerifyExpires = undefined;
   await user.save();
 
-  // 3) Update changedPasswordAt property for the user
-
-  // 4) Log the healthcare in, send JWT
+  // 4) Log the USER in, send JWT
   createSendToken(user, 200, res);
 };
 
@@ -168,14 +166,14 @@ exports.protect = async (req, res, next) => {
     }
 
     // 4) Check if User changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next(
-        new AppError(
-          "User recently changed password! Please log in again.",
-          401
-        )
-      );
-    }
+    // if (currentUser.changedPasswordAfter(decoded.iat)) {
+    //   return next(
+    //     new AppError(
+    //       "User recently changed password! Please log in again.",
+    //       401
+    //     )
+    //   );
+    // }
 
     // Set currentUser in both req.user and res.locals.user
     req.user = currentUser;
