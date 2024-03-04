@@ -166,14 +166,14 @@ exports.protect = async (req, res, next) => {
     }
 
     // 4) Check if User changed password after the token was issued
-    // if (currentUser.changedPasswordAfter(decoded.iat)) {
-    //   return next(
-    //     new AppError(
-    //       "User recently changed password! Please log in again.",
-    //       401
-    //     )
-    //   );
-    // }
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError(
+          "User recently changed password! Please log in again.",
+          401
+        )
+      );
+    }
 
     // Set currentUser in both req.user and res.locals.user
     req.user = currentUser;

@@ -48,6 +48,9 @@ module.exports = (sequelize, DataTypes) => {
       emailVerifyExpires: {
         type: DataTypes.DATE,
       },
+      passwordChangedAt: {
+        type: DataTypes.DATE,
+      },
     },
     {
       freezeTableName: true,
@@ -66,6 +69,19 @@ module.exports = (sequelize, DataTypes) => {
   // Instance method to compare passwords
   User.prototype.correctPassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
+  };
+
+  User.prototype.changedPasswordAfter = function (JWTTimestamp) {
+    if (this.passwordChangedAt) {
+      const changedTimestamp = parseInt(
+        this.passwordChangedAt.getTime() / 1000,
+        10
+      );
+      // console.log(changedTimestamp, JWTTimestamp);
+      return JWTTimestamp < changedTimestamp;
+    }
+    // False means not changed
+    return false;
   };
 
   // To generate token to reset password
