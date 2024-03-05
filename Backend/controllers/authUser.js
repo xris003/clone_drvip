@@ -119,7 +119,6 @@ exports.login = async (req, res, next) => {
   }
 
   // 3) if ok send token to client
-  // console.log(user);
   createSendToken(user, 200, res);
 };
 
