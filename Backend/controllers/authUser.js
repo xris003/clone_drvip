@@ -41,7 +41,7 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   const user = await User.create(req.body);
 
   // 2) Generate the random email verification token
@@ -67,17 +67,10 @@ exports.signup = async (req, res) => {
       message: "Verification token sent to email!",
     });
   } catch (err) {
-    user.emailVerifyToken = undefined;
-    user.emailVerifyExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
     // Handle the error, e.g., return a 500 status code
-    res.status(500).json({
-      status: "error",
-      message: "Failed to send verification email. Please try again later.",
-    });
+    console.log(err);
+    return next(new AppError("Email Verification not sent", 500));
   }
-  //createSendToken(user, 201, res);
 };
 
 exports.verifyEmail = async (req, res, next) => {
