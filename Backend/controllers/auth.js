@@ -97,11 +97,11 @@ exports.protect = async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // console.log(decoded);
 
-  // 3) Check if Merchant stil exists
-  // const currentMerchant = await Merchant.findOne({ where: { id: decoded.id } });
-  // if (!currentMerchant) {
-  //   return next(new AppError("The merchant no longer exists", 401));
-  // }
+  //3) Check if Merchant stil exists
+  const currentMerchant = await Merchant.findOne({ where: { id: decoded.id } });
+  if (!currentMerchant) {
+    return next(new AppError("The merchant no longer exists", 401));
+  }
   const currentmerchant = await Merchant.findByPk(decoded.id);
   if (!currentmerchant) {
     return next(new AppError("The merchant no longer exists", 401));
