@@ -85,7 +85,7 @@ module.exports = (sequelize, DataTypes) => {
     return false;
   };
 
-  // To generate token to reset password
+  // To generate token to verify password
   User.prototype.createAccountVerifyToken = function () {
     const verifyToken = crypto.randomBytes(32).toString("hex");
 

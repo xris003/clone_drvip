@@ -81,8 +81,9 @@ exports.verifyEmail = async (req, res, next) => {
     .digest("hex");
 
   const user = await User.findOne({
-    emailVerifyToken: hashedToken,
-    emailVerifyExpires: { $gt: Date.now() },
+    where: {
+      emailVerifyToken: hashedToken,
+    },
   });
 
   // 2) If token has not expired, and there is a user, set the new password
