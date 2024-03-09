@@ -77,6 +77,57 @@ exports.login = async (req, res, next) => {
 //   res.status(200).json({ status: "success" });
 // };
 
+// exports.protect = async (req, res, next) => {
+//   // 1) Get the token and check if it's there
+//   let token;
+//   if (
+//     req.headers.authorization &&
+//     req.headers.authorization.startsWith("Bearer")
+//   ) {
+//     token = req.headers.authorization.split(" ")[1];
+//   } else if (req.cookies.jwt) {
+//     token = req.cookies.jwt;
+//   }
+
+//   if (!token) {
+//     return next(
+//       new AppError("You are not logged in! Login to have access", 401)
+//     );
+//   }
+
+//   // 2) Verification token
+//   try {
+//     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+//     // 3) Check if User still exists
+//     const currentUser = await User.findByPk(decoded.id);
+//     // console.log("Email received:", req.user);
+//     if (!currentUser) {
+//       return next(new AppError("The user no longer exists", 401));
+//     }
+
+//     // 4) Check if User changed password after the token was issued
+//     if (currentUser.changedPasswordAfter(decoded.iat)) {
+//       return next(
+//         new AppError(
+//           "User recently changed password! Please log in again.",
+//           401
+//         )
+//       );
+//     }
+
+//     // Set currentUser in both req.user and res.locals.user
+//     req.user = currentUser;
+//     res.locals.user = currentUser;
+
+//     // Grants Access to protected route
+//     next();
+//   } catch (err) {
+//     console.log(err);
+//     return next(new AppError("Invalid token. Please log in again.", 401));
+//   }
+// };
+
 // THIS FUNCTION IS STILL UNDER REVIEW
 exports.protect = async (req, res, next) => {
   // 1) Get the token and check if it's there
