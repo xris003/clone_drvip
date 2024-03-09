@@ -123,3 +123,44 @@ exports.protect = async (req, res, next) => {
   // Grants Access to proctected route
   next();
 };
+
+exports.forgotPassword = async (req, res, next) => {
+  // 1) Get user based on POSTed email
+  const merchant = await Merchant.findOne({ where: { email: req.body.email } });
+  if (!merchant) {
+    return next(new AppError("There is no user with the email address", 404));
+  }
+
+  // 2) Generate the random reset token
+  const resetToken = merchant.createPasswordResetToken();
+  await merchant.save({ validateBeforeSave: false });
+
+  // 3) Send it to the user's email
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/merchants/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new passsword and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: merchant.email,
+      subject: "Your password reset token (valid for 10mins)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    merchant.passwordResetToken = undefined;
+    merchant.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError("There was an error sending the email. Try again"),
+      500
+    );
+  }
+};
