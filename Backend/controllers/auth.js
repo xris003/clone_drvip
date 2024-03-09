@@ -164,3 +164,31 @@ exports.forgotPassword = async (req, res, next) => {
     );
   }
 };
+
+exports.resetPassword = async (req, res, next) => {
+  // 1) Get USER based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const merchant = await Merchant.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // 2) If token has not expired, and there is a user, set the new password
+  if (!merchant) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+  merchant.password = req.body.password;
+  merchant.passwordConfirm = req.body.passwordConfirm;
+  merchant.passwordResetToken = undefined;
+  merchant.passwordResetExpires = undefined;
+  await merchant.save();
+
+  // 3) Update changedPasswordAt property for the user
+
+  // 4) Log the healthcare in, send JWT
+  createSendToken(merchant, 200, res);
+};
