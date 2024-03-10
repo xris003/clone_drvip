@@ -115,6 +115,10 @@ exports.login = async (req, res, next) => {
     // attributes: ["password"],
   });
 
+  if (user.activated != true) {
+    return next(new AppError("Kindly Verify Email"));
+  }
+
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password"));
   }
