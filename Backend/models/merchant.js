@@ -55,6 +55,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      passwordResetToken: {
+        type: DataTypes.STRING,
+      },
+      passwordResetExpiresAt: {
+        type: DataTypes.DATE,
+      },
     },
     {
       freezeTableName: true,
