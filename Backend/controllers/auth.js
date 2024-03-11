@@ -77,6 +77,57 @@ exports.login = async (req, res, next) => {
 //   res.status(200).json({ status: "success" });
 // };
 
+// exports.protect = async (req, res, next) => {
+//   // 1) Get the token and check if it's there
+//   let token;
+//   if (
+//     req.headers.authorization &&
+//     req.headers.authorization.startsWith("Bearer")
+//   ) {
+//     token = req.headers.authorization.split(" ")[1];
+//   } else if (req.cookies.jwt) {
+//     token = req.cookies.jwt;
+//   }
+
+//   if (!token) {
+//     return next(
+//       new AppError("You are not logged in! Login to have access", 401)
+//     );
+//   }
+
+//   // 2) Verification token
+//   try {
+//     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+//     // 3) Check if User still exists
+//     const currentUser = await User.findByPk(decoded.id);
+//     // console.log("Email received:", req.user);
+//     if (!currentUser) {
+//       return next(new AppError("The user no longer exists", 401));
+//     }
+
+//     // 4) Check if User changed password after the token was issued
+//     if (currentUser.changedPasswordAfter(decoded.iat)) {
+//       return next(
+//         new AppError(
+//           "User recently changed password! Please log in again.",
+//           401
+//         )
+//       );
+//     }
+
+//     // Set currentUser in both req.user and res.locals.user
+//     req.user = currentUser;
+//     res.locals.user = currentUser;
+
+//     // Grants Access to protected route
+//     next();
+//   } catch (err) {
+//     console.log(err);
+//     return next(new AppError("Invalid token. Please log in again.", 401));
+//   }
+// };
+
 // THIS FUNCTION IS STILL UNDER REVIEW
 exports.protect = async (req, res, next) => {
   // 1) Get the token and check if it's there
@@ -122,4 +173,73 @@ exports.protect = async (req, res, next) => {
 
   // Grants Access to proctected route
   next();
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  // 1) Get user based on POSTed email
+  const merchant = await Merchant.findOne({ where: { email: req.body.email } });
+  if (!merchant) {
+    return next(new AppError("There is no user with the email address", 404));
+  }
+
+  // 2) Generate the random reset token
+  const resetToken = merchant.createPasswordResetToken();
+  await merchant.save({ validateBeforeSave: false });
+
+  // 3) Send it to the user's email
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/merchants/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new passsword and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: merchant.email,
+      subject: "Your password reset token (valid for 10mins)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    merchant.passwordResetToken = undefined;
+    merchant.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError("There was an error sending the email. Try again"),
+      500
+    );
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  // 1) Get USER based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const merchant = await Merchant.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // 2) If token has not expired, and there is a user, set the new password
+  if (!merchant) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+  merchant.password = req.body.password;
+  merchant.passwordConfirm = req.body.passwordConfirm;
+  merchant.passwordResetToken = undefined;
+  merchant.passwordResetExpires = undefined;
+  await merchant.save();
+
+  // 3) Update changedPasswordAt property for the user
+
+  // 4) Log the healthcare in, send JWT
+  createSendToken(merchant, 200, res);
 };
