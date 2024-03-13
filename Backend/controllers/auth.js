@@ -190,8 +190,7 @@ exports.forgotPassword = async (req, res, next) => {
   const resetURL = `${req.protocol}://${req.get(
     "host"
   )}/api/merchants/resetPassword/${resetToken}`;
-
-  const message = `Forgot your password? Submit a PATCH request with your new passsword and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
+  await new Email(merchant, resetURL).sendPasswordReset();
 
   try {
     await sendEmail({
