@@ -3,8 +3,9 @@ const {
 } = require("../models");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
-const merchant = require("../models/merchant");
+// const merchant = require("../models/merchant");
 const AppError = require("../utils/appError");
+const Email = require("../utils/emailMerchant");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
