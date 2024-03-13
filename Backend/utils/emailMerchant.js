@@ -3,7 +3,7 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.name.split(" ")[0];
     this.url = url;
-    this.from = `Jonas Schmedtman <${process.env.EMAIL_FROM}>`;
+    this.from = `Chris Gabriel <${process.env.EMAIL_FROM}>`;
   }
 
   newTransport() {
@@ -45,7 +45,7 @@ module.exports = class Email {
   }
 
   async sendWelcome() {
-    this.send("welcome", "Welcome to the Care Finder Family");
+    this.send("welcome", "Welcome to the DREAL_VIP Family");
   }
 
   async sendPasswordReset() {
